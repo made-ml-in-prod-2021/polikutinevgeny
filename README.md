@@ -1,1 +1,5 @@
-# polikutinevgeny
+# Машинное обучение в продакшене
+
+Репозиторий для курса "Машинное обучение в продакшене" MADE.
+
+[Профиль](https://data.mail.ru/profile/e.polikutin/)
