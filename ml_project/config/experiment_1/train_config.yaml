@@ -1,0 +1,57 @@
+model_save_path: models/model_experiment_1.pkl
+pipeline_save_path: models/pipeline_experiment_1.pkl
+data_load_config:
+  data_path: data/heart.csv
+  split_config:
+    val_size: 0.2
+    random_state: 42
+feature_config:
+  target_column: target
+  replace_zeros: true
+  raw_features:
+    numeric_features:
+      - age
+      - trestbps
+      - chol
+      - thalach
+      - oldpeak
+    categorical_features:
+      - thal
+      - ca
+      - slope
+      - exang
+      - restecg
+      - fbs
+      - cp
+      - sex
+  statistical_features:
+    build: true
+    features:
+      - sum
+      - var
+      - median
+      - mean
+      - std
+      - max
+      - min
+  random_projection_features:
+    build: false
+    n_features: 5
+  polynomial_features:
+    build: true
+    degree: 2
+  k_means_features:
+    build: true
+model_config:
+  model: random_forest
+  random_state: 42
+  params:
+    n_estimators: 100
+    max_depth: 12
+evaluation_config:
+  metric_file_path: reports/metrics_experiment_1.yaml
+  metrics:
+    - accuracy
+    - f1
+    - precision
+    - recall
