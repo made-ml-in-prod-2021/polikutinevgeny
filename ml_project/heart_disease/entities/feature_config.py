@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 
 @dataclass
@@ -25,6 +25,7 @@ class PolynomialFeaturesConfig:
 class KMeansFeaturesConfig:
     build: bool = field(default=False)
     random_state: int = field(default=42)
+    n_clusters: int = field(default=2)
 
 
 @dataclass
@@ -45,5 +46,3 @@ class FeatureConfig:
     k_means_features: KMeansFeaturesConfig = field(default_factory=KMeansFeaturesConfig)
 
     replace_zeros: bool = field(default=True)
-
-    n_features_to_select: int = field(default=-1)
