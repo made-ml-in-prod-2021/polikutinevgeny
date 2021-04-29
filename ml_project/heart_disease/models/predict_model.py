@@ -26,10 +26,21 @@ def save_predictions(predictions: np.ndarray, path: str):
 
 @hydra.main(config_path=PROJECT_ROOT / "config", config_name="predict_config")
 def predict(cfg: PredictConfig):
+    log.info(f"Reading data from {cfg.data_path}...")
     data = read_data(to_absolute_path(cfg.data_path))
+    log.info("Data read")
+
+    log.info(f"Loading pipeline from {cfg.pipeline_load_path}...")
     pipeline = deserialize_pipeline(to_absolute_path(cfg.pipeline_load_path))
+    log.info("Pipeline loaded")
+
+    log.info(f"Loading model from {cfg.model_load_path}...")
     model = deserialize_model(to_absolute_path(cfg.model_load_path))
+    log.info("Model loaded")
+
+    log.info("Predicting...")
     predicted = predict_model(model, pipeline.transform(data))
+    log.info("Saving predictions...")
     save_predictions(predicted, to_absolute_path(cfg.output_path))
 
 

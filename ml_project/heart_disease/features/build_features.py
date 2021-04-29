@@ -6,7 +6,6 @@ import pandas as pd
 from sklearn.base import TransformerMixin
 from sklearn.cluster import KMeans
 from sklearn.compose import make_column_transformer
-from sklearn.feature_selection import SelectKBest, mutual_info_classif
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import make_pipeline, Pipeline, make_union
 from sklearn.preprocessing import PolynomialFeatures, OneHotEncoder, StandardScaler
