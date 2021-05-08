@@ -1,0 +1,4 @@
+model_load_path: models/model.pkl
+pipeline_load_path: models/pipeline.pkl
+data_path: data/heart.csv
+output_path: results.csv
