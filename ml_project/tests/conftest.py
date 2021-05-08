@@ -32,17 +32,17 @@ def get_row_generators(rng: Generator) -> Dict[str, Callable]:
     }
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def categorical_features() -> List[str]:
     return ["thal", "ca", "slope", "exang", "restecg", "fbs", "cp", "sex"]
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def numerical_features() -> List[str]:
     return ["age", "trestbps", "chol", "thalach", "oldpeak"]
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def target_column() -> str:
     return "target"
 
@@ -54,17 +54,17 @@ def generate_random_row(row_generators: Dict[str, Callable]) -> Dict[str, Union[
     return row
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def dataset_filename() -> str:
     return "data.csv"
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def dataset_size() -> int:
     return 200
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def dataset_file(tmp_path: Path, dataset_filename: str, dataset_size: int) -> str:
     rng = Generator(PCG64(12345))
     data = pd.DataFrame.from_records([generate_random_row(get_row_generators(rng)) for _ in range(dataset_size)])
@@ -73,12 +73,12 @@ def dataset_file(tmp_path: Path, dataset_filename: str, dataset_size: int) -> st
     return str(dataset_path)
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def dataset(dataset_file: str) -> pd.DataFrame:
     return read_data(dataset_file)
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def features(
         dataset: pd.DataFrame,
         categorical_features: List[str],
@@ -96,12 +96,12 @@ def features(
     return transformed_features
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def target(dataset: pd.DataFrame, target_column: str) -> np.ndarray:
     return dataset[target_column].values
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def statistics() -> OrderedDict[str, Callable]:
     return OrderedDict(sum=np.sum, var=lambda x, **kwargs: np.var(x, ddof=1, **kwargs), median=np.median,
                        mean=np.mean, std=lambda x, **kwargs: np.std(x, ddof=1, **kwargs), max=np.max, min=np.min)
@@ -132,6 +132,6 @@ def get_feature_config(
     return config
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def metrics() -> List[str]:
     return ["accuracy", "f1", "precision", "recall"]
