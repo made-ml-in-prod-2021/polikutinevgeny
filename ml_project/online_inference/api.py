@@ -45,7 +45,7 @@ def rebuild_dataframe(params: HeartDiseaseModel, metadata: Dict[str, np.dtype]) 
                 error_msg = f"Failed to cast column {key} to dtype {dtype}"
                 logger.exception(error_msg)
                 raise HTTPException(status_code=400, detail=error_msg)
-    return data
+    return data[list(metadata.keys())]
 
 
 @app.post("/predict", response_model=List[HeartDiseaseResponseModel])
