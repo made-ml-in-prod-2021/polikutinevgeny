@@ -1,5 +1,6 @@
 model_save_path: models/model_experiment_2.pkl
 pipeline_save_path: models/pipeline_experiment_2.pkl
+metadata_save_path: models/metadata_experiment_2.pkl
 data_load_config:
   data_path: data/heart.csv
   split_config:

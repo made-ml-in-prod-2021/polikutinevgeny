@@ -1,4 +1,3 @@
-import pickle
 from typing import Union, Dict, List
 
 import numpy as np
@@ -7,6 +6,7 @@ from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.metrics import get_scorer
 
 from heart_disease.entities.model_config import TrainModelConfig, ModelType
+from heart_disease.utils import deserialize_object, serialize_object
 
 Classifier = Union[RandomForestClassifier, ExtraTreesClassifier]
 
@@ -41,10 +41,8 @@ def save_metrics(metrics: Dict[str, float], path: str):
 
 
 def serialize_model(model: Classifier, path: str):
-    with open(path, "wb") as f:
-        pickle.dump(model, f)
+    serialize_object(model, path)
 
 
 def deserialize_model(path: str) -> Classifier:
-    with open(path, "rb") as f:
-        return pickle.load(f)
+    return deserialize_object(path)

@@ -25,6 +25,7 @@ def train_model(
     model_save_path = str(tmpdir / "model.pkl")
     pipeline_save_path = str(tmpdir / "pipeline.pkl")
     metrics_path = str(tmpdir / "metrics.yaml")
+    metadata_path = str(tmpdir / "metadata.pkl")
     projection_features = 5
     polynomial_degree = 2
     n_clusters = 2
@@ -51,9 +52,10 @@ def train_model(
         ),
         pipeline_save_path=pipeline_save_path,
         model_save_path=model_save_path,
+        metadata_save_path=metadata_path
     )
     train_pipeline(config)
-    return metrics_path, model_save_path, pipeline_save_path
+    return metrics_path, model_save_path, pipeline_save_path, metadata_path
 
 
 def test_train_pipeline(
@@ -65,11 +67,18 @@ def test_train_pipeline(
         metrics: List[str],
         statistics: OrderedDict[str, Callable]
 ):
-    metrics_path, model_save_path, pipeline_save_path = train_model(categorical_features, dataset_file, metrics,
-                                                                    numerical_features, statistics, target_column,
-                                                                    tmpdir)
+    metrics_path, model_save_path, pipeline_save_path, metadata_path = train_model(
+        categorical_features,
+        dataset_file,
+        metrics,
+        numerical_features,
+        statistics,
+        target_column,
+        tmpdir
+    )
     assert Path(model_save_path).exists()
     assert Path(pipeline_save_path).exists()
+    assert Path(metadata_path).exists()
     assert Path(metrics_path).exists()
     with open(metrics_path, "r") as f:
         metric_values = yaml.safe_load(f)
@@ -90,9 +99,15 @@ def test_predict_pipeline(
         statistics: OrderedDict[str, Callable]
 ):
     output = str(tmpdir / "output.txt")
-    _, model_save_path, pipeline_save_path = train_model(categorical_features, dataset_file, metrics,
-                                                         numerical_features, statistics, target_column,
-                                                         tmpdir)
+    _, model_save_path, pipeline_save_path, _ = train_model(
+        categorical_features,
+        dataset_file,
+        metrics,
+        numerical_features,
+        statistics,
+        target_column,
+        tmpdir
+    )
     config = PredictConfig(
         model_load_path=model_save_path,
         pipeline_load_path=pipeline_save_path,

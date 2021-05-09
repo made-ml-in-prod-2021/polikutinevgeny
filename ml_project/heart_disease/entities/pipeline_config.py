@@ -15,6 +15,7 @@ class TrainingConfig:
     evaluation_config: EvaluateModelConfig = field(default_factory=lambda: EvaluateModelConfig)
     model_save_path: str = omegaconf.MISSING
     pipeline_save_path: str = omegaconf.MISSING
+    metadata_save_path: str = omegaconf.MISSING
 
 
 @dataclass
