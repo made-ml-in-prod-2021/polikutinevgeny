@@ -1,6 +1,3 @@
-# local package
--e .
-
 # external requirements
 click==7.1.2
 coverage==5.5
