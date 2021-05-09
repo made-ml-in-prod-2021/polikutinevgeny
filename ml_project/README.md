@@ -61,3 +61,6 @@ docker push polikutinevgeny/ml_project:latest
 docker pull polikutinevgeny/ml_project:latest
 docker run -p 8000:80 polikutinevgeny/ml_project:latest
 ```
+
+Протыкать скриптом:
+`python -m online_inference.make_request`
