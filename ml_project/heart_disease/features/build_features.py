@@ -95,6 +95,10 @@ def extract_target(df: pd.DataFrame, config: FeatureConfig) -> pd.Series:
     return target
 
 
+def extract_raw_features(df: pd.DataFrame, config: FeatureConfig) -> pd.DataFrame:
+    return df[config.raw_features.numeric_features + config.raw_features.categorical_features]
+
+
 def serialize_pipeline(pipeline: Pipeline, path: str):
     serialize_object(pipeline, path)
 

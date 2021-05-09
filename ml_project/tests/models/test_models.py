@@ -21,7 +21,6 @@ def test_predict(features: np.ndarray, target: np.ndarray):
     config = TrainModelConfig(model=ModelType.random_forest, random_state=42, params=dict(n_estimators=50))
     model = train_model(features, target, config)
     predicted = predict_model(model, features)
-    print(predicted.shape, target.shape)
     assert predicted.shape[0] == target.shape[0]
 
 

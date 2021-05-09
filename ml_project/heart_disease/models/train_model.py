@@ -8,7 +8,7 @@ from hydra.utils import to_absolute_path
 from heart_disease.data.make_dataset import load_datasets
 from heart_disease.entities.pipeline_config import TrainingConfig
 from heart_disease.features.build_features import build_feature_pipeline, extract_target, serialize_pipeline, \
-    serialize_metadata
+    serialize_metadata, extract_raw_features
 from heart_disease.models.model import train_model, evaluate_model, serialize_model, save_metrics
 
 log = logging.getLogger(__name__)
@@ -28,9 +28,11 @@ def train_pipeline(cfg: TrainingConfig):
 
     log.info("Building features...")
     feature_pipeline = build_feature_pipeline(cfg.feature_config)
-    feature_pipeline.fit(train_data)
-    train_features = feature_pipeline.transform(train_data)
-    val_features = feature_pipeline.transform(val_data)
+    raw_train_features = extract_raw_features(train_data, cfg.feature_config)
+    raw_val_features = extract_raw_features(val_data, cfg.feature_config)
+    feature_pipeline.fit(raw_train_features)
+    train_features = feature_pipeline.transform(raw_train_features)
+    val_features = feature_pipeline.transform(raw_val_features)
     train_target = extract_target(train_data, cfg.feature_config)
     val_target = extract_target(val_data, cfg.feature_config)
     log.info("Features built")
