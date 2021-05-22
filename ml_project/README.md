@@ -39,28 +39,3 @@ make requirements
 
 Пути к файлам можно указывать через файлы конфигов, либо через 
 параметры командной строки (e.g. `python -m heart_disease.models.predict_model data_path="data/new_data.csv"`)
-
-
-Сборка образа
------------------
-```shell
-python -m heart_disease.models.train_model
-docker build . -t ml_project:latest
-```
-
-Публикация образа
------------------
-```shell
-docker tag ml_project:latest polikutinevgeny/ml_project:latest
-docker push polikutinevgeny/ml_project:latest
-```
-
-Запуск образа
--------------
-```shell
-docker pull polikutinevgeny/ml_project:latest
-docker run -p 8000:80 polikutinevgeny/ml_project:latest
-```
-
-Протыкать скриптом:
-`python -m online_inference.make_request`

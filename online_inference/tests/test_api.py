@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from pydantic import parse_obj_as
 
-from online_inference.schemas import HeartDiseaseModel, HeartDiseaseResponseModel
+from online_inference.api.schemas import HeartDiseaseModel, HeartDiseaseResponseModel
 
 
 @pytest.fixture(scope="session")
@@ -25,7 +25,7 @@ def test_client(tmp_path_factory, train_artifacts: Tuple[str, str, str, str]):
         print(f"metadata_path={metadata_path}", file=f)
     load_dotenv(dotenv_path=new_env)
 
-    from online_inference.api import app
+    from online_inference.api.api import app
     client = TestClient(app)
     return client
 

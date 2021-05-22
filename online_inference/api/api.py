@@ -1,14 +1,14 @@
 import logging
-from typing import List, Dict
+import pickle
+from pathlib import Path
+from typing import List, Dict, Any
 
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 
-from heart_disease.features.build_features import deserialize_metadata, deserialize_pipeline
-from heart_disease.models.model import deserialize_model
-from online_inference.schemas import HeartDiseaseModel, HeartDiseaseResponseModel, Settings
+from .schemas import HeartDiseaseModel, HeartDiseaseResponseModel, Settings
 
 logger = logging.getLogger(__name__)
 
@@ -19,11 +19,16 @@ app = FastAPI(
 )
 
 
+def deserialize_object(path: Path) -> Any:
+    with open(path, "rb") as f:
+        return pickle.load(f)
+
+
 @app.on_event("startup")
 def load_artifacts():
-    app.state.metadata = deserialize_metadata(str(settings.metadata_path))
-    app.state.pipeline = deserialize_pipeline(str(settings.pipeline_path))
-    app.state.model = deserialize_model(str(settings.model_path))
+    app.state.metadata = deserialize_object(settings.metadata_path)
+    app.state.pipeline = deserialize_object(settings.pipeline_path)
+    app.state.model = deserialize_object(settings.model_path)
 
 
 def rebuild_dataframe(params: HeartDiseaseModel, metadata: Dict[str, np.dtype]) -> pd.DataFrame:

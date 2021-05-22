@@ -1,11 +1,10 @@
 import requests
+import pandas as pd
 
-from heart_disease.data.make_dataset import read_data
-
-DATA_PATH = "data/heart.csv"
+DATA_PATH = "ml_project/data/heart.csv"
 
 if __name__ == '__main__':
-    data = read_data(DATA_PATH)
+    data = pd.read_csv(DATA_PATH)
     response = requests.post(
         "http://localhost:8000/predict",
         json={
