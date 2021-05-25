@@ -10,6 +10,8 @@ from fastapi import FastAPI, HTTPException, Request
 
 from .schemas import HeartDiseaseModel, HeartDiseaseResponseModel, Settings
 
+VALIDATION_ERROR_STATUS_CODE = 400
+
 logger = logging.getLogger(__name__)
 
 load_dotenv()
@@ -37,20 +39,24 @@ def rebuild_dataframe(params: HeartDiseaseModel, metadata: Dict[str, np.dtype]) 
     except ValueError:
         error_msg = "Failed to construct DataFrame from passed data"
         logger.exception(error_msg)
-        raise HTTPException(status_code=400, detail=error_msg)
+        raise_validation_error(error_msg)
     for key, dtype in metadata.items():
         if key not in data.columns:
             error_msg = f"Column {key} not found in data"
             logger.error(error_msg)
-            raise HTTPException(status_code=400, detail=error_msg)
+            raise_validation_error(error_msg)
         if data[key].dtype != dtype:
             try:
                 data[key] = data[key].astype(dtype)
             except ValueError:
                 error_msg = f"Failed to cast column {key} to dtype {dtype}"
                 logger.exception(error_msg)
-                raise HTTPException(status_code=400, detail=error_msg)
+                raise_validation_error(error_msg)
     return data[list(metadata.keys())]
+
+
+def raise_validation_error(error_msg):
+    raise HTTPException(status_code=VALIDATION_ERROR_STATUS_CODE, detail=error_msg)
 
 
 @app.post("/predict", response_model=List[HeartDiseaseResponseModel])
