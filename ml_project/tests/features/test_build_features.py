@@ -17,7 +17,7 @@ from heart_disease.features.build_features import \
     serialize_pipeline, \
     deserialize_pipeline, \
     extract_target
-from conftest import get_feature_config
+from tests.conftest import get_feature_config
 
 EPS = 1e-6
 

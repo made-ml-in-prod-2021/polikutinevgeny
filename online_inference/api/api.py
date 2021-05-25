@@ -1,5 +1,5 @@
 import logging
-import pickle
+import cloudpickle
 from pathlib import Path
 from typing import List, Dict, Any
 
@@ -21,7 +21,7 @@ app = FastAPI(
 
 def deserialize_object(path: Path) -> Any:
     with open(path, "rb") as f:
-        return pickle.load(f)
+        return cloudpickle.load(f)
 
 
 @app.on_event("startup")

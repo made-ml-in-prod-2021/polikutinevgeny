@@ -6,8 +6,8 @@
 
 Сборка образа
 -----------------
+Сначала обучить и положить артефакты рядом, затем:
 ```shell
-python -m heart_disease.models.train_model
 docker build . -t ml_project:latest
 ```
 
@@ -26,4 +26,4 @@ docker run -p 8000:80 polikutinevgeny/ml_project:latest
 ```
 
 Протыкать скриптом:
-`python -m online_inference.api.make_request`
+`python -m make_request`

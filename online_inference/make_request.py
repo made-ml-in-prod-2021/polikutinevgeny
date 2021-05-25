@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 
-DATA_PATH = "ml_project/data/heart.csv"
+DATA_PATH = "../ml_project/data/heart.csv"
 
 if __name__ == '__main__':
     data = pd.read_csv(DATA_PATH)
