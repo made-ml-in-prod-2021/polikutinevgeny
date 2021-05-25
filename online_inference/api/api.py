@@ -28,9 +28,11 @@ def deserialize_object(path: Path) -> Any:
 
 @app.on_event("startup")
 def load_artifacts():
+    logger.info("Loading artifacts...")
     app.state.metadata = deserialize_object(settings.metadata_path)
     app.state.pipeline = deserialize_object(settings.pipeline_path)
     app.state.model = deserialize_object(settings.model_path)
+    logger.info("Artifacts loaded")
 
 
 def rebuild_dataframe(params: HeartDiseaseModel, metadata: Dict[str, np.dtype]) -> pd.DataFrame:
