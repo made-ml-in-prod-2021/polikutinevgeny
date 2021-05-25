@@ -1,5 +1,5 @@
-from typing import Dict, Union, List
 from pathlib import Path
+from typing import Union, List
 
 from pydantic import BaseModel, BaseSettings
 

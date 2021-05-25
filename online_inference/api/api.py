@@ -1,8 +1,8 @@
 import logging
-import cloudpickle
 from pathlib import Path
 from typing import List, Dict, Any
 
+import cloudpickle
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
