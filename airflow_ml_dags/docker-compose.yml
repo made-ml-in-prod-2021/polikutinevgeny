@@ -1,0 +1,183 @@
+version: '3.7'
+# ====================================== AIRFLOW ENVIRONMENT VARIABLES =======================================
+x-environment: &environment
+  - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+  - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
+  - AIRFLOW__CORE__LOAD_EXAMPLES=True
+  - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql://airflow:airflow@postgres:5432/airflow
+  - AIRFLOW__CORE__STORE_DAG_CODE=True
+  - AIRFLOW__CORE__STORE_SERIALIZED_DAGS=True
+  - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
+  - AIRFLOW__CORE__FERNET_KEY=${FERNET_KEY}
+# MLFlow variables
+  - AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+  - AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+  - MINIO_ROOT_USER=AKIAIOSFODNN7EXAMPLE
+  - MINIO_ROOT_PASSWORD=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+  - MLFLOW_S3_ENDPOINT_URL=http://host.docker.internal:9000
+  - AWS_BUCKET_NAME=mlflow
+  - DATABASE_PATH=mysql+pymysql://mlflow:mlflow@mlflow_db:3306/mlflow
+  - ARTIFACT_PATH=mlflow
+  - MLFLOW_TRACKING_URI=http://host.docker.internal:5000
+# Custom variables
+  - DATA_MOUNT_PATH=/home/polikutin/polikutinevgeny/airflow_ml_dags/data
+
+x-airflow-image: &airflow_image apache/airflow:2.0.0-python3.6
+# ====================================== /AIRFLOW ENVIRONMENT VARIABLES ======================================
+services:
+  s3:
+    image: minio/minio:latest
+    container_name: aws-s3
+    ports:
+      - 9000:9000
+    environment: *environment
+    command:
+      server /data
+    volumes:
+      - ./s3:/data
+
+  mc:
+    image: minio-setup
+    build:
+      context: ./images/minio-setup
+    depends_on:
+      - s3
+    container_name: mc
+    environment: *environment
+    entrypoint: >
+      /bin/sh -c "
+      while ! nc -z s3 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; sleep 5 &&
+      /usr/bin/mc config host add s3 http://s3:9000 $${AWS_ACCESS_KEY_ID} $${AWS_SECRET_ACCESS_KEY};
+      /usr/bin/mc mb s3/mlflow;
+      /usr/bin/mc policy download s3/$${AWS_BUCKET_NAME};
+      exit 0;
+      "
+
+  mlflow_db:
+    restart: always
+    image: mysql/mysql-server:5.7.28
+    container_name: mlflow_db
+    expose:
+      - 3306
+    environment:
+      - MYSQL_DATABASE=mlflow
+      - MYSQL_USER=mlflow
+      - MYSQL_PASSWORD=mlflow
+      - MYSQL_ROOT_PASSWORD=mlflow
+
+  mlflow:
+    restart: always
+    container_name: mlflow
+    image: mlflow
+    build:
+      context: ./images/mlflow
+    ports:
+      - 5000:5000
+    environment: *environment
+    entrypoint: /bin/bash
+    command: -c './wait-for-it.sh mlflow_db:3306 -t 90 -- mlflow server --backend-store-uri $${DATABASE_PATH} --default-artifact-root s3://$${AWS_BUCKET_NAME}/ -h 0.0.0.0'
+
+  postgres:
+    image: postgres:12-alpine
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    ports:
+      - 5432:5432
+
+  init:
+    build:
+      context: images/airflow-docker
+      args:
+        AIRFLOW_BASE_IMAGE: *airflow_image
+    image: airflow-docker
+    depends_on:
+      - postgres
+    environment: *environment
+    entrypoint: /bin/bash
+    command: -c 'airflow db init && airflow users create --username admin --password admin --firstname Anonymous --lastname Admin --role Admin --email admin@example.org'
+
+  webserver:
+    build:
+      context: images/airflow-docker
+      args:
+        AIRFLOW_BASE_IMAGE: *airflow_image
+    image: airflow-docker
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - 8080:8080
+    volumes:
+      - logs:/opt/airflow/logs
+    environment: *environment
+    command: webserver
+
+  scheduler:
+    build:
+      context: images/airflow-docker
+      args:
+        AIRFLOW_BASE_IMAGE: *airflow_image
+    image: airflow-docker
+    restart: always
+    depends_on:
+      - postgres
+    volumes:
+      - logs:/opt/airflow/logs
+      - ./dags/:/opt/airflow/dags/
+      - ./data/:/opt/airflow/data/
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment: *environment
+    command: scheduler
+
+  ml_base:
+    build:
+      context: images/airflow-ml-base
+    image: airflow-ml-base
+    restart: "no"
+
+  predict:
+    build:
+      context: images/airflow-predict
+    image: airflow-predict
+    restart: "no"
+
+  get-data:
+    build:
+      context: images/airflow-get-data
+    image: airflow-get-data
+    restart: "no"
+
+  preprocess:
+    build:
+      context: images/airflow-preprocess
+    image: airflow-preprocess
+    restart: "no"
+
+  split-data:
+    build:
+      context: images/airflow-split-data
+    image: airflow-split-data
+    restart: "no"
+
+  evaluate:
+    build:
+      context: images/airflow-evaluate
+    image: airflow-evaluate
+    restart: "no"
+
+  train:
+    build:
+      context: images/airflow-train
+    image: airflow-train
+    restart: "no"
+
+  create-run:
+    build:
+      context: images/airflow-create-run
+    image: airflow-create-run
+    restart: "no"
+
+volumes:
+  logs:
