@@ -1,5 +1,6 @@
 model_save_path: models/model.pkl
 pipeline_save_path: models/pipeline.pkl
+metadata_save_path: models/metadata.pkl
 data_load_config:
   data_path: data/heart.csv
   split_config:

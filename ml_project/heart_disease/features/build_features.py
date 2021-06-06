@@ -1,5 +1,4 @@
-import pickle
-from typing import List
+from typing import List, Dict
 
 import numpy as np
 import pandas as pd
@@ -12,6 +11,7 @@ from sklearn.preprocessing import PolynomialFeatures, OneHotEncoder, StandardSca
 from sklearn.random_projection import SparseRandomProjection
 
 from heart_disease.entities.feature_config import FeatureConfig
+from heart_disease.utils import serialize_object, deserialize_object
 
 
 class StatisticalFeaturesExtractor(TransformerMixin):
@@ -95,11 +95,22 @@ def extract_target(df: pd.DataFrame, config: FeatureConfig) -> pd.Series:
     return target
 
 
+def extract_raw_features(df: pd.DataFrame, config: FeatureConfig) -> pd.DataFrame:
+    return df[config.raw_features.numeric_features + config.raw_features.categorical_features]
+
+
 def serialize_pipeline(pipeline: Pipeline, path: str):
-    with open(path, "wb") as f:
-        pickle.dump(pipeline, f)
+    serialize_object(pipeline, path)
 
 
 def deserialize_pipeline(path: str) -> Pipeline:
-    with open(path, "rb") as f:
-        return pickle.load(f)
+    return deserialize_object(path)
+
+
+def serialize_metadata(df: pd.DataFrame, config: FeatureConfig, path: str):
+    all_features = config.raw_features.numeric_features + config.raw_features.categorical_features
+    return serialize_object(df[all_features].dtypes.to_dict(), path)
+
+
+def deserialize_metadata(path: str) -> Dict[str, np.dtype]:
+    return deserialize_object(path)

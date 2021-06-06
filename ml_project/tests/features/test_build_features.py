@@ -9,7 +9,7 @@ from scipy.special import binom
 from heart_disease.entities.feature_config import FeatureConfig, RandomProjectionFeaturesConfig, \
     KMeansFeaturesConfig, StatisticalFeaturesConfig, PolynomialFeaturesConfig
 from heart_disease.features.build_features import \
-    StatisticalFeaturesExtractor, KMeansFeaturesExtractor
+    StatisticalFeaturesExtractor, KMeansFeaturesExtractor, serialize_metadata, deserialize_metadata
 from heart_disease.features.build_features import \
     build_categorical_feature_pipeline, \
     build_numerical_feature_pipeline, \
@@ -132,3 +132,24 @@ def test_serialize_pipeline(
     serialize_pipeline(pipeline, filename)
     loaded_pipeline = deserialize_pipeline(filename)
     assert np.all(pipeline.transform(dataset) == loaded_pipeline.transform(dataset))
+
+
+def test_serialize_metadata(
+        dataset: pd.DataFrame,
+        numerical_features: List[str],
+        categorical_features: List[str],
+        tmp_path: Path,
+        statistics: OrderedDict[str, Callable],
+        target_column: str
+):
+    filename = str(tmp_path / "metadata.pkl")
+    projection_features = 5
+    polynomial_degree = 2
+    n_clusters = 2
+    config = get_feature_config(target_column, categorical_features, n_clusters, numerical_features, polynomial_degree,
+                                projection_features, statistics)
+    serialize_metadata(dataset, config, filename)
+    metadata = deserialize_metadata(filename)
+    for k, v in metadata.items():
+        assert dataset[k].dtype == v
+    assert set(metadata.keys()) == set(numerical_features + categorical_features)
