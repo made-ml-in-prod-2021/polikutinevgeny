@@ -50,3 +50,5 @@ with DAG(
         environment=docker_env,
         extra_hosts=docker_hosts,
     )
+
+    data_sensor >> evaluate
